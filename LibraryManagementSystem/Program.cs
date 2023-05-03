@@ -62,7 +62,6 @@ options.UseSqlServer(connectionString));
                     user.UserName = mail;
                     await userManager.CreateAsync(user, pass);
                     await userManager.AddToRoleAsync(user, "Admin");
-
                 }
             }
             app.Run();

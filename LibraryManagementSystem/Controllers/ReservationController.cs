@@ -7,24 +7,30 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
+using Microsoft.AspNetCore.Identity;
 
 namespace LibraryManagementSystem.Controllers
 {
     public class ReservationController : Controller
     {
         private readonly LibraryManagementSystemContext _context;
+        private readonly UserManager<LMSUser> _userManager;
 
-        public ReservationController(LibraryManagementSystemContext context)
+        public ReservationController(LibraryManagementSystemContext context, UserManager<LMSUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Reservation
         public async Task<IActionResult> Index()
         {
-              return _context.ReservationDetails != null ? 
-                          View(await _context.ReservationDetails.ToListAsync()) :
-                          Problem("Entity set 'LibraryManagementSystemContext.ReservationDetails'  is null.");
+            return _context.ReservationDetails != null ?
+                        View(await _context.ReservationDetails
+                        .Include(d => d.Book)
+                        .Include(d => d.ReservedUser)
+                        .ToListAsync()) :
+                        Problem("Entity set 'LibraryManagementSystemContext.ReservationDetails'  is null.");
         }
 
         // GET: Reservation/Details/5
@@ -48,7 +54,7 @@ namespace LibraryManagementSystem.Controllers
         // GET: Reservation/Create
         public IActionResult Create(int id)
         {
-            Console.WriteLine(id);
+            TempData["BookId"] = id;
             return View();
         }
 
@@ -57,15 +63,24 @@ namespace LibraryManagementSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ReservationId,ReservedDate,IssuedDate,ReturnDate,ReturnedDate")] ReservationDetails reservationDetails)
+        public async Task<IActionResult> Create(ReservationDetails reservationDetails)
         {
-            if (ModelState.IsValid)
+            try
             {
+                int tempId = (int)TempData["BookId"];
+                var BookData = await _context.BookDetails.Where(x => x.BookId == tempId).FirstOrDefaultAsync();
+                reservationDetails.ReservedUser = await _userManager.GetUserAsync(User);
+                reservationDetails.Book = BookData;
+                Console.WriteLine("\n \n" + reservationDetails.ReservedDate.ToString() + " return" + reservationDetails.ReturnDate.ToString());
                 _context.Add(reservationDetails);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(reservationDetails);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return View(reservationDetails);
+            }
         }
 
         // GET: Reservation/Edit/5
@@ -89,34 +104,46 @@ namespace LibraryManagementSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,ReservedDate,IssuedDate,ReturnDate,ReturnedDate")] ReservationDetails reservationDetails)
+        public async Task<IActionResult> Edit(int id, [Bind("ReservationId,ReservedDate,IssuedDate,ReturnDate,ReturnedDate,ReservationStatus")] ReservationDetails reservationDetails)
         {
             if (id != reservationDetails.ReservationId)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // change the reservation status
+                if (reservationDetails.ReservationStatus == ReservationStatus.Reserved)
+                    reservationDetails.ReservationStatus = ReservationStatus.Issued;
+                else if (reservationDetails.ReservationStatus == ReservationStatus.Issued)
                 {
-                    _context.Update(reservationDetails);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ReservationDetailsExists(reservationDetails.ReservationId))
+                    reservationDetails.ReturnedDate = DateTime.Now;
+                    reservationDetails.ReservationStatus = ReservationStatus.Returned;
+                    // check for fine
+                    if (reservationDetails.ReturnDate < reservationDetails.ReturnedDate)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        TimeSpan dateDiff = (TimeSpan)(reservationDetails.ReturnedDate - reservationDetails.ReturnDate);
+                        Console.Write("\n \n \n");
+                        Console.WriteLine(dateDiff.Days);
                     }
                 }
+                Console.WriteLine("updating");
+                _context.Update(reservationDetails);
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(reservationDetails);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ReservationDetailsExists(reservationDetails.ReservationId))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return View();
         }
 
         // GET: Reservation/Delete/5
@@ -151,14 +178,14 @@ namespace LibraryManagementSystem.Controllers
             {
                 _context.ReservationDetails.Remove(reservationDetails);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool ReservationDetailsExists(int id)
         {
-          return (_context.ReservationDetails?.Any(e => e.ReservationId == id)).GetValueOrDefault();
+            return (_context.ReservationDetails?.Any(e => e.ReservationId == id)).GetValueOrDefault();
         }
     }
 }

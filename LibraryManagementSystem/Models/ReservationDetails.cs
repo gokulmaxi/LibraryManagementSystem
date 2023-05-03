@@ -16,9 +16,10 @@ namespace LibraryManagementSystem.Models
         public int ReservationId { get; set; }
         public DateTime ReservedDate { get; set; }
         public DateTime? IssuedDate { get; set; }
-        public DateTime? ReturnDate { get; set;}
-        public DateTime? ReturnedDate { get; set;}
+        public DateTime ReturnDate { get; set; }
+        public DateTime? ReturnedDate { get; set; }
         public LMSUser ReservedUser { get; set; }
         public BookDetails Book { get; set; }
+        public ReservationStatus ReservationStatus { get; set; } = ReservationStatus.Reserved;
     }
 }
