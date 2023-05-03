@@ -23,7 +23,10 @@ namespace LibraryManagementSystem.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.FineDetails != null ? 
-                          View(await _context.FineDetails.ToListAsync()) :
+                          View(await _context.FineDetails
+                          .Include(d => d.Reservation.ReservedUser)
+                          .Include(d => d.Reservation.Book)
+                          .ToListAsync()) :
                           Problem("Entity set 'LibraryManagementSystemContext.FineDetails'  is null.");
         }
 
