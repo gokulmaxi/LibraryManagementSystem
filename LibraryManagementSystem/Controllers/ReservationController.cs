@@ -125,6 +125,12 @@ namespace LibraryManagementSystem.Controllers
                         TimeSpan dateDiff = (TimeSpan)(reservationDetails.ReturnedDate - reservationDetails.ReturnDate);
                         Console.Write("\n \n \n");
                         Console.WriteLine(dateDiff.Days);
+                        FineDetails Fine = new();
+                        Fine.Reservation = reservationDetails;
+                        Fine.User = reservationDetails.ReservedUser;
+                        // set fine rate as 5 rs for each delayed day
+                        Fine.FineAmount = dateDiff.Days * 5;
+                        _context.FineDetails.Add(Fine);
                     }
                 }
                 Console.WriteLine("updating");
