@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
+using Microsoft.Data.SqlClient;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -20,9 +21,15 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: BookDetails
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-              return _context.BookDetails != null ? 
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                return _context.BookDetails != null ?
+                              View(await _context.BookDetails.Where(s => s.BookTitle.Contains(searchString)).ToListAsync()) :
+                              Problem("Entity set 'LibraryManagementSystemContext.BookDetails'  is null.");
+            }
+            return _context.BookDetails != null ?
                           View(await _context.BookDetails.ToListAsync()) :
                           Problem("Entity set 'LibraryManagementSystemContext.BookDetails'  is null.");
         }
@@ -150,14 +157,14 @@ namespace LibraryManagementSystem.Controllers
             {
                 _context.BookDetails.Remove(bookDetails);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BookDetailsExists(int id)
         {
-          return (_context.BookDetails?.Any(e => e.BookId == id)).GetValueOrDefault();
+            return (_context.BookDetails?.Any(e => e.BookId == id)).GetValueOrDefault();
         }
     }
 }

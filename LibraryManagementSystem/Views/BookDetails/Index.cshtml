@@ -11,7 +11,14 @@
         <a asp-action="Create">Create New</a>
     </p>
 }
-<table class="table">
+@using (Html.BeginForm())
+{
+    <p>
+        Find by name: @Html.TextBox("SearchString")
+        <input type="submit" value="Search" />
+    </p>
+}
+<table id="demoGrid" class="table">
     <thead>
         <tr>
             <th>
@@ -81,3 +88,4 @@
         }
     </tbody>
 </table>
+
