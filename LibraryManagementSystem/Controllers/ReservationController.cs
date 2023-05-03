@@ -46,8 +46,9 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: Reservation/Create
-        public IActionResult Create()
+        public IActionResult Create(int id)
         {
+            Console.WriteLine(id);
             return View();
         }
 

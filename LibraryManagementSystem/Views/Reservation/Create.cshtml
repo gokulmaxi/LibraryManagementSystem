@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "Create";
 }
-
 <h1>Create</h1>
 
 <h4>ReservationDetails</h4>
@@ -11,26 +10,16 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @*<div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
             <div class="form-group">
                 <label asp-for="ReservedDate" class="control-label"></label>
-                <input asp-for="ReservedDate" class="form-control" />
-                <span asp-validation-for="ReservedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IssuedDate" class="control-label"></label>
-                <input asp-for="IssuedDate" class="form-control" />
-                <span asp-validation-for="IssuedDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ReturnDate" class="control-label"></label>
-                <input asp-for="ReturnDate" class="form-control" />
-                <span asp-validation-for="ReturnDate" class="text-danger"></span>
+                <input asp-for="ReservedDate" id="datepicker" type="text" class="form-control" />
+                @*<span asp-validation-for="ReservedDate" class="text-danger"></span>*@
             </div>
             <div class="form-group">
                 <label asp-for="ReturnedDate" class="control-label"></label>
-                <input asp-for="ReturnedDate" class="form-control" />
-                <span asp-validation-for="ReturnedDate" class="text-danger"></span>
+                <input asp-for="ReturnedDate" type="text" class="form-control" />
+                @*<span asp-validation-for="ReturnedDate" class="text-danger"></span>*@
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
@@ -42,7 +31,25 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+@section Scripts
+    {
+    <script>
+        $(function () {
+            $("#datepicker").datepicker({
+                minDate: 0,
+                onSelect: function () {
+                    var dateObject = $(this).datepicker('getDate');
+                    dateObject.setDate(dateObject.getDate() + 15)
+                    console.log(dateObject)
+                    $("#ReturnedDate").datepicker({
+                        maxDate: dateObject
+                    });
+                }
+            });
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+        });
+    </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
