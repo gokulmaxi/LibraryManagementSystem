@@ -12,30 +12,25 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="IsAdded" /> @Html.DisplayNameFor(model => model.IsAdded)
-                </label>
-            </div>
-            <input type="hidden" asp-for="BookId" />
+            <input type="hidden" asp-for="RequestId" />
             <div class="form-group">
                 <label asp-for="BookTitle" class="control-label"></label>
-                <input asp-for="BookTitle" class="form-control" />
+                <input asp-for="BookTitle" class="form-control" readonly/>
                 <span asp-validation-for="BookTitle" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Category" class="control-label"></label>
-                <select asp-for="Category" class="form-control"></select>
+                <input asp-for="Category" class="form-control" readonly></input>
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Author" class="control-label"></label>
-                <input asp-for="Author" class="form-control" />
+                <input asp-for="Author" class="form-control" readonly/>
                 <span asp-validation-for="Author" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Publication" class="control-label"></label>
-                <input asp-for="Publication" class="form-control" />
+                <input asp-for="Publication" class="form-control" readonly/>
                 <span asp-validation-for="Publication" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -55,8 +50,13 @@
             </div>
             <div class="form-group">
                 <label asp-for="CoverId" class="control-label"></label>
-                <input asp-for="CoverId" class="form-control" />
+                <input asp-for="CoverId" class="form-control" hidden"/>
                 <span asp-validation-for="CoverId" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsAdded" /> @Html.DisplayNameFor(model => model.IsAdded)
+                </label>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

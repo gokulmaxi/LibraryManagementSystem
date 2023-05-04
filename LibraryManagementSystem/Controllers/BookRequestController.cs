@@ -7,24 +7,29 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
+using System.Text.Json;
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 namespace LibraryManagementSystem.Controllers
 {
     public class BookRequestController : Controller
     {
         private readonly LibraryManagementSystemContext _context;
+        private readonly UserManager<LMSUser> _userManager;
 
-        public BookRequestController(LibraryManagementSystemContext context)
+        public BookRequestController(LibraryManagementSystemContext context,UserManager<LMSUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: BookRequest
         public async Task<IActionResult> Index()
         {
-              return _context.BookRequestModel != null ? 
-                          View(await _context.BookRequestModel.ToListAsync()) :
-                          Problem("Entity set 'LibraryManagementSystemContext.BookRequestModel'  is null.");
+            return _context.BookRequestModel != null ?
+                        View(await _context.BookRequestModel.ToListAsync()) :
+                        Problem("Entity set 'LibraryManagementSystemContext.BookRequestModel'  is null.");
         }
 
         // GET: BookRequest/Details/5
@@ -36,7 +41,7 @@ namespace LibraryManagementSystem.Controllers
             }
 
             var bookRequestModel = await _context.BookRequestModel
-                .FirstOrDefaultAsync(m => m.BookId == id);
+                .FirstOrDefaultAsync(m => m.RequestId == id);
             if (bookRequestModel == null)
             {
                 return NotFound();
@@ -46,8 +51,39 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: BookRequest/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(string id)
         {
+            Console.WriteLine(id);
+            // build the API request URL
+            string apiUrl = $"https://openlibrary.org/api/books?bibkeys=ISBN:{id}&format=json&jscmd=data";
+
+            // send the API request and get the response
+            HttpClient client = new HttpClient();
+            HttpResponseMessage response = await client.GetAsync(apiUrl);
+            response.EnsureSuccessStatusCode();
+            string responseBody = await response.Content.ReadAsStringAsync();
+
+            // parse the JSON response and extract the book details
+            JsonElement responseJson = JsonDocument.Parse(responseBody).RootElement;
+            JsonElement bookJson = responseJson.GetProperty($"ISBN:{id}");
+            string bookName = bookJson.GetProperty("title").GetString();
+            string publisher = bookJson.GetProperty("publishers")[0].GetProperty("name").GetString();
+            string authorName = bookJson.GetProperty("authors")[0].GetProperty("name").GetString();
+            string coverUrl = bookJson.GetProperty("cover").GetProperty("medium").GetString();
+            ViewBag.BookName = bookName;
+            ViewBag.Publisher = publisher;
+            ViewBag.Author = authorName;
+            // Extract Id from url
+            string[] urlParts = coverUrl.Split('/');
+            string coverIdWithExtension = urlParts[urlParts.Length - 1];
+            string[] coverIdParts = coverIdWithExtension.Split('-');
+            string coverId = coverIdParts[0];
+            ViewBag.CoverId = Int32.Parse(coverId);
+            // display the book details
+            Console.WriteLine($"Book name: {bookName}");
+            Console.WriteLine($"Publisher: {publisher}");
+            Console.WriteLine($"Author name: {authorName}");
+            Console.WriteLine($"Cover : {coverUrl}");
             return View();
         }
 
@@ -56,15 +92,20 @@ namespace LibraryManagementSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IsAdded,BookId,BookTitle,Category,Author,Publication,BookEdition,Price,RackNo,CoverId")] BookRequestModel bookRequestModel)
+        public async Task<IActionResult> Create([Bind("IsAdded,BookId,BookTitle,Category,Author,Publication,BookEdition,Price,RackNo,CoverId")] BookRequestModel bookRequestModel, int id)
         {
-            if (ModelState.IsValid)
+            try
             {
+                bookRequestModel.RequestedBy = await _userManager.GetUserAsync(User);
                 _context.Add(bookRequestModel);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(bookRequestModel);
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: BookRequest/Edit/5
@@ -88,23 +129,35 @@ namespace LibraryManagementSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IsAdded,BookId,BookTitle,Category,Author,Publication,BookEdition,Price,RackNo,CoverId")] BookRequestModel bookRequestModel)
+        public async Task<IActionResult> Edit(int id,BookRequestModel bookRequestModel)
         {
-            if (id != bookRequestModel.BookId)
+            if (id != bookRequestModel.RequestId)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
                 try
                 {
                     _context.Update(bookRequestModel);
+                if(bookRequestModel.IsAdded == true)
+                {
+                    // Find a way to map two class
+                    BookDetails newBook = new();
+                    //var newBk = Mapper.Map<BookRequestModel, BookDetails>(bookRequestModel);
+                    newBook.BookTitle = bookRequestModel.BookTitle;
+                    newBook.Category = bookRequestModel.Category;
+                    newBook.Author = bookRequestModel.Author;
+                    newBook.Publication = bookRequestModel.Publication;
+                    newBook.BookEdition = bookRequestModel.BookEdition;
+                    newBook.Price = bookRequestModel.Price;
+                    newBook.RackNo = bookRequestModel.RackNo;
+                    _context.BookDetails.Add(newBook);
+                }
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!BookRequestModelExists(bookRequestModel.BookId))
+                    if (!BookRequestModelExists(bookRequestModel.RequestId))
                     {
                         return NotFound();
                     }
@@ -114,8 +167,6 @@ namespace LibraryManagementSystem.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
-            }
-            return View(bookRequestModel);
         }
 
         // GET: BookRequest/Delete/5
@@ -127,7 +178,7 @@ namespace LibraryManagementSystem.Controllers
             }
 
             var bookRequestModel = await _context.BookRequestModel
-                .FirstOrDefaultAsync(m => m.BookId == id);
+                .FirstOrDefaultAsync(m => m.RequestId == id);
             if (bookRequestModel == null)
             {
                 return NotFound();
@@ -150,14 +201,14 @@ namespace LibraryManagementSystem.Controllers
             {
                 _context.BookRequestModel.Remove(bookRequestModel);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool BookRequestModelExists(int id)
         {
-          return (_context.BookRequestModel?.Any(e => e.BookId == id)).GetValueOrDefault();
+            return (_context.BookRequestModel?.Any(e => e.RequestId == id)).GetValueOrDefault();
         }
     }
 }

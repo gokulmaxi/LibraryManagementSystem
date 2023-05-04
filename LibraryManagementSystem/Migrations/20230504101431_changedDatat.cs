@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LibraryManagementSystem.Migrations
 {
-    public partial class initidentity : Migration
+    public partial class changedDatat : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,6 +46,26 @@ namespace LibraryManagementSystem.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BookDetails",
+                columns: table => new
+                {
+                    BookId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<int>(type: "int", nullable: false),
+                    Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Publication = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookEdition = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: false),
+                    RackNo = table.Column<int>(type: "int", nullable: false),
+                    CoverId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookDetails", x => x.BookId);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,6 +174,90 @@ namespace LibraryManagementSystem.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "BookRequestModel",
+                columns: table => new
+                {
+                    RequestId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BookTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<int>(type: "int", nullable: false),
+                    Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Publication = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    BookEdition = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<int>(type: "int", nullable: false),
+                    RackNo = table.Column<int>(type: "int", nullable: false),
+                    CoverId = table.Column<int>(type: "int", nullable: false),
+                    RequestedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    IsAdded = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookRequestModel", x => x.RequestId);
+                    table.ForeignKey(
+                        name: "FK_BookRequestModel_AspNetUsers_RequestedById",
+                        column: x => x.RequestedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReservationDetails",
+                columns: table => new
+                {
+                    ReservationId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReservedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IssuedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReturnDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ReturnedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReservedUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    BookId = table.Column<int>(type: "int", nullable: false),
+                    ReservationStatus = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReservationDetails", x => x.ReservationId);
+                    table.ForeignKey(
+                        name: "FK_ReservationDetails_AspNetUsers_ReservedUserId",
+                        column: x => x.ReservedUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ReservationDetails_BookDetails_BookId",
+                        column: x => x.BookId,
+                        principalTable: "BookDetails",
+                        principalColumn: "BookId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FineDetails",
+                columns: table => new
+                {
+                    FineId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FineAmount = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ReservationId = table.Column<int>(type: "int", nullable: false),
+                    Paid = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FineDetails", x => x.FineId);
+                    table.ForeignKey(
+                        name: "FK_FineDetails_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_FineDetails_ReservationDetails_ReservationId",
+                        column: x => x.ReservationId,
+                        principalTable: "ReservationDetails",
+                        principalColumn: "ReservationId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -192,6 +296,31 @@ namespace LibraryManagementSystem.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookRequestModel_RequestedById",
+                table: "BookRequestModel",
+                column: "RequestedById");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FineDetails_ReservationId",
+                table: "FineDetails",
+                column: "ReservationId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FineDetails_UserId",
+                table: "FineDetails",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationDetails_BookId",
+                table: "ReservationDetails",
+                column: "BookId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReservationDetails_ReservedUserId",
+                table: "ReservationDetails",
+                column: "ReservedUserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -212,10 +341,22 @@ namespace LibraryManagementSystem.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "BookRequestModel");
+
+            migrationBuilder.DropTable(
+                name: "FineDetails");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
+                name: "ReservationDetails");
+
+            migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "BookDetails");
         }
     }
 }

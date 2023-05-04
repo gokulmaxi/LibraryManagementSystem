@@ -112,10 +112,6 @@ namespace LibraryManagementSystem.Migrations
                     b.Property<int>("CoverId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
@@ -129,8 +125,54 @@ namespace LibraryManagementSystem.Migrations
                     b.HasKey("BookId");
 
                     b.ToTable("BookDetails");
+                });
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("BookDetails");
+            modelBuilder.Entity("LibraryManagementSystem.Models.BookRequestModel", b =>
+                {
+                    b.Property<int>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"), 1L, 1);
+
+                    b.Property<string>("Author")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BookEdition")
+                        .HasColumnType("int");
+
+                    b.Property<string>("BookTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CoverId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsAdded")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Publication")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RackNo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RequestedById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("RequestedById");
+
+                    b.ToTable("BookRequestModel");
                 });
 
             modelBuilder.Entity("LibraryManagementSystem.Models.FineDetails", b =>
@@ -339,17 +381,11 @@ namespace LibraryManagementSystem.Migrations
 
             modelBuilder.Entity("LibraryManagementSystem.Models.BookRequestModel", b =>
                 {
-                    b.HasBaseType("LibraryManagementSystem.Models.BookDetails");
+                    b.HasOne("LibraryManagementSystem.Areas.Identity.Data.LMSUser", "RequestedBy")
+                        .WithMany()
+                        .HasForeignKey("RequestedById");
 
-                    b.Property<bool>("IsAdded")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("RequestedById")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasIndex("RequestedById");
-
-                    b.HasDiscriminator().HasValue("BookRequestModel");
+                    b.Navigation("RequestedBy");
                 });
 
             modelBuilder.Entity("LibraryManagementSystem.Models.FineDetails", b =>
@@ -435,15 +471,6 @@ namespace LibraryManagementSystem.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("LibraryManagementSystem.Models.BookRequestModel", b =>
-                {
-                    b.HasOne("LibraryManagementSystem.Areas.Identity.Data.LMSUser", "RequestedBy")
-                        .WithMany()
-                        .HasForeignKey("RequestedById");
-
-                    b.Navigation("RequestedBy");
                 });
 #pragma warning restore 612, 618
         }
