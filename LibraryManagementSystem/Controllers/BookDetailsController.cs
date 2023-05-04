@@ -48,7 +48,6 @@ namespace LibraryManagementSystem.Controllers
                 {
                     // Error occurred while retrieving book information.
                 }
-                Console.WriteLine(books[0].Title);
             }
             ViewBag.SearchResult = books;
             return View();

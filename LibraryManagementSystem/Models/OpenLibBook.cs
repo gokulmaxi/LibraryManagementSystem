@@ -12,5 +12,13 @@ namespace LibraryManagementSystem.Models
 
         [JsonProperty("cover_i")]
         public int CoverId { get; set; }
+
+        [JsonProperty("isbn")]
+        public List<string> Isbn { get; set; }
+
+        [JsonProperty("key")]
+        public string Key { get; set; }
+        [JsonProperty("publisher")]
+        public List<string> Publication { get; set; }
     }
 }

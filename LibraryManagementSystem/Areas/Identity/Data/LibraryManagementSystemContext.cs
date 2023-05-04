@@ -26,4 +26,6 @@ public class LibraryManagementSystemContext : IdentityDbContext<LMSUser>
     public DbSet<LibraryManagementSystem.Models.ReservationDetails>? ReservationDetails { get; set; }
 
     public DbSet<LibraryManagementSystem.Models.FineDetails>? FineDetails { get; set; }
+
+    public DbSet<LibraryManagementSystem.Models.BookRequestModel>? BookRequestModel { get; set; }
 }

@@ -27,5 +27,6 @@ namespace LibraryManagementSystem.Models
         public int BookEdition { get; set; }
         public int Price { get; set; }
         public int RackNo { get; set;}
+        public int CoverId { get; set; }
     }
 }

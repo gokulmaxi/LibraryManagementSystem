@@ -13,14 +13,17 @@
 <div class="book-grid">
     @foreach (OpenLibBook book in ViewBag.SearchResult)
     {
-        <a asp-action="Create" class="book-card">
-            @{string src = "https://covers.openlibrary.org/b/id/" + book.CoverId + "-M.jpg";}
-            <div class="book-cover" style="background-image: url(@src)"></div>
-            <div class="book-title">@book.Title</div>
-            @if (book.Authors != null)
-            {
+        @if (book.Authors != null && book.Isbn != null && book.CoverId != null)
+        {
+            <a asp-action="Create" asp-controller="BookRequest" asp-route-id="@book.Isbn[0]" class="book-card">
+                @{
+                    string src = "https://covers.openlibrary.org/b/id/" + book.CoverId + "-M.jpg";
+                }
+                <div class="book-cover" style="background-image: url(@src)"></div>
+                <div class="book-title">@book.Title</div>
                 <div class="book-author">@book.Authors[0]</div>
-            }
-        </a>
+                <div class="book-author">@book.Isbn[0]</div>
+            </a>
+        }
     }
     <div />
