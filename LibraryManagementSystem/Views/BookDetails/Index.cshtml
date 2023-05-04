@@ -11,6 +11,10 @@
         <a asp-action="Create">Create New</a>
     </p>
 }
+else
+{
+    <a asp-action="SearchNew" >Request Book</a>
+}
 @using (Html.BeginForm())
 {
     <p>
@@ -81,7 +85,7 @@
                 else
                 {
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.BookId">Check Availability</a> 
+                        <a asp-action="Details" asp-route-id="@item.BookId">Check Availability</a>
                     </td>
                 }
             </tr>

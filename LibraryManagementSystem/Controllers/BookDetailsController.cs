@@ -8,6 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.Data.SqlClient;
+using RestSharp;
+using System.Text.Json;
+using Newtonsoft.Json;
+using System.Text.Json.Nodes;
+using Newtonsoft.Json.Linq;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -20,6 +25,34 @@ namespace LibraryManagementSystem.Controllers
             _context = context;
         }
 
+        public async Task<IActionResult> SearchNew(string searchString)
+        {
+
+            List<OpenLibBook> books = new();
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                var client = new RestClient("https://openlibrary.org/");
+                Console.WriteLine(searchString);
+                var request = new RestRequest("search.json", Method.GET);
+                request.AddParameter("title", searchString);
+                request.AddParameter("limit", 20);
+                var response = client.Execute(request);
+                if (response.IsSuccessful)
+                {
+                    JObject forecastNode = JObject.Parse(response.Content)!;
+                    JToken data = forecastNode.SelectToken("docs");
+                    books = data.ToObject<List<OpenLibBook>>();
+                    // Do something with the list of books.
+                }
+                else
+                {
+                    // Error occurred while retrieving book information.
+                }
+                Console.WriteLine(books[0].Title);
+            }
+            ViewBag.SearchResult = books;
+            return View();
+        }
         // GET: BookDetails
         public async Task<IActionResult> Index(string searchString)
         {
