@@ -41,6 +41,12 @@ body {
     margin-bottom: 10px;
 }
 
+.book-cover-2 {
+    height: 80%;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 10px;
+}
 .book-title {
     font-size: 1.2rem;
     font-weight: 500;
