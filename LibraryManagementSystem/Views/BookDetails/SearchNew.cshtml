@@ -2,28 +2,40 @@
     ViewData["Title"] = "SearchNew";
 }
 
-<h1>SearchNew</h1>
-@using (Html.BeginForm())
-{
-    <p>
-        Find by name: @Html.TextBox("SearchString")
-        <input type="submit" value="Search" />
-    </p>
-}
-<div class="book-grid">
+<div class="row mb-3 justify-content-center">
+    <div class="col-md-8">
+        @using (Html.BeginForm())
+        {
+            <div class="input-group">
+                @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "What are you looking for?" })
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+@if(ViewBag.SearchResult != null){
+<div class="row">
     @foreach (OpenLibBook book in ViewBag.SearchResult)
     {
         @if (book.Authors != null && book.Isbn != null && book.CoverId != null)
         {
-            <a asp-action="Create" asp-controller="BookRequest" asp-route-id="@book.Isbn[0]" class="book-card">
-                @{
-                    string src = "https://covers.openlibrary.org/b/id/" + book.CoverId + "-M.jpg";
-                }
-                <div class="book-cover" style="background-image: url(@src)"></div>
-                <div class="book-title">@book.Title</div>
-                <div class="book-author">@book.Authors[0]</div>
-                <div class="book-author">@book.Isbn[0]</div>
-            </a>
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <a asp-action="Create" asp-controller="BookRequest" asp-route-id="@book.Isbn[0]" class="book-card">
+                    @{
+                        string src = "https://covers.openlibrary.org/b/id/" + book.CoverId + "-M.jpg";
+                    }
+                    <div class="card-img-top book-cover" style="background-image: url(@src)"></div>
+                    <div class="card-body">
+                        <h5 class="card-title book-title">@book.Title</h5>
+                        <p class="card-text book-author">@book.Authors[0]</p>
+                    </div>
+                </a>
+            </div>
         }
     }
-    <div />
+    </div>
+}
