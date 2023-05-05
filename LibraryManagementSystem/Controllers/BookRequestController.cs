@@ -10,15 +10,17 @@ using LibraryManagementSystem.Models;
 using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class BookRequestController : Controller
     {
         private readonly LibraryManagementSystemContext _context;
         private readonly UserManager<LMSUser> _userManager;
 
-        public BookRequestController(LibraryManagementSystemContext context,UserManager<LMSUser> userManager)
+        public BookRequestController(LibraryManagementSystemContext context, UserManager<LMSUser> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -27,12 +29,25 @@ namespace LibraryManagementSystem.Controllers
         // GET: BookRequest
         public async Task<IActionResult> Index()
         {
+            if (!User.IsInRole("Admin"))
+            {
+                var currentUser = await _userManager.GetUserAsync(User);
+                return _context.BookRequestModel != null ?
+                            View(await _context.BookRequestModel
+                            .Where(d => d.RequestedBy == currentUser)
+                            .OrderBy(d => d.IsAdded)
+                            .ToListAsync()) :
+                            Problem("Entity set 'LibraryManagementSystemContext.BookRequestModel'  is null.");
+            }
             return _context.BookRequestModel != null ?
-                        View(await _context.BookRequestModel.ToListAsync()) :
+                        View(await _context.BookRequestModel
+                        .OrderBy(d => d.IsAdded)
+                        .ToListAsync()) :
                         Problem("Entity set 'LibraryManagementSystemContext.BookRequestModel'  is null.");
         }
 
         // GET: BookRequest/Details/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.BookRequestModel == null)
@@ -108,6 +123,7 @@ namespace LibraryManagementSystem.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: BookRequest/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -129,17 +145,18 @@ namespace LibraryManagementSystem.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id,BookRequestModel bookRequestModel)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Edit(int id, BookRequestModel bookRequestModel)
         {
             if (id != bookRequestModel.RequestId)
             {
                 return NotFound();
             }
 
-                try
-                {
-                    _context.Update(bookRequestModel);
-                if(bookRequestModel.IsAdded == true)
+            try
+            {
+                _context.Update(bookRequestModel);
+                if (bookRequestModel.IsAdded == true)
                 {
                     // Find a way to map two class
                     BookDetails newBook = new();
@@ -154,23 +171,24 @@ namespace LibraryManagementSystem.Controllers
                     newBook.CoverId = bookRequestModel.CoverId;
                     _context.BookDetails.Add(newBook);
                 }
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!BookRequestModelExists(bookRequestModel.RequestId))
                 {
-                    if (!BookRequestModelExists(bookRequestModel.RequestId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: BookRequest/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.BookRequestModel == null)
@@ -191,6 +209,7 @@ namespace LibraryManagementSystem.Controllers
         // POST: BookRequest/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (_context.BookRequestModel == null)
