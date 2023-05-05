@@ -3,93 +3,124 @@
 @{
     ViewData["Title"] = "Index";
 }
+<link rel="stylesheet" href="~/css/book-ui.css" asp-append-version="true" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<div class="row mb-3 justify-content-between">
+    <div class="col-md-8">
+        @using (Html.BeginForm())
+        {
+            <div class="input-group">
+                @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "What are you looking for?" })
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-outline-secondary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-md-2">
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create">Create New</a>
+        }
+        else
+        {
+            <a class="btn btn-outline-secondary justify-content-end" asp-action="SearchNew">Request Book</a>
+        }
+    </div>
 
-<h1>Index</h1>
+</div>
+
 @if (User.IsInRole("Admin"))
 {
-    <p>
-        <a asp-action="Create">Create New</a>
-    </p>
+    <table id="demoGrid" class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.BookTitle)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Category)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Author)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Publication)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.BookEdition)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Price)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RackNo)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BookTitle)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Category)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Author)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Publication)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.BookEdition)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Price)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RackNo)
+                    </td>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.BookId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.BookId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.BookId">Delete</a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.BookId">Check Availability</a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 else
 {
-    <a asp-action="SearchNew" >Request Book</a>
-}
-@using (Html.BeginForm())
-{
-    <p>
-        Find by name: @Html.TextBox("SearchString")
-        <input type="submit" value="Search" />
-    </p>
-}
-<table id="demoGrid" class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.BookTitle)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Category)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Author)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Publication)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BookEdition)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RackNo)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
+    <div class="row">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BookTitle)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Category)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Author)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Publication)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.BookEdition)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RackNo)
-                </td>
-                @if (User.IsInRole("Admin"))
-                {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.BookId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.BookId">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.BookId">Delete</a>
-                    </td>
-                }
-                else
-                {
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.BookId">Check Availability</a>
-                    </td>
-                }
-            </tr>
+            string src = "https://covers.openlibrary.org/b/id/" + item.CoverId.ToString() + "-M.jpg";
+            <div class="col-6 col-md-4 col-lg-3 mb-4">
+                <a asp-action="Details" asp-route-id="@item.BookId" class="card book-card h-100">
+                    <div class="card-img-top book-cover" style="background-image: url(@src)"></div>
+                    <div class="card-body">
+                        <h5 class="card-title book-title">@item.BookTitle</h5>
+                        <p class="card-text book-author">@item.Author</p>
+                    </div>
+                </a>
+            </div>
         }
-    </tbody>
-</table>
+    </div>
+}
 

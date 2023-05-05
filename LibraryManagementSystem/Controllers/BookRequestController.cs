@@ -151,6 +151,7 @@ namespace LibraryManagementSystem.Controllers
                     newBook.BookEdition = bookRequestModel.BookEdition;
                     newBook.Price = bookRequestModel.Price;
                     newBook.RackNo = bookRequestModel.RackNo;
+                    newBook.CoverId = bookRequestModel.CoverId;
                     _context.BookDetails.Add(newBook);
                 }
                     await _context.SaveChangesAsync();
