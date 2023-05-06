@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
+using Newtonsoft.Json;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -22,12 +23,31 @@ namespace LibraryManagementSystem.Controllers
         // GET: Fine
         public async Task<IActionResult> Index()
         {
-              return _context.FineDetails != null ? 
-                          View(await _context.FineDetails
-                          .Include(d => d.Reservation.ReservedUser)
-                          .Include(d => d.Reservation.Book)
-                          .ToListAsync()) :
-                          Problem("Entity set 'LibraryManagementSystemContext.FineDetails'  is null.");
+            List<FineDetails> data = new();
+            try
+            {
+                string apiUrl = $"http://localhost:5142/api/FineDetails";
+
+                // send the API request and get the response
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(responseBody);
+                data = JsonConvert.DeserializeObject<List<FineDetails>>(responseBody);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return View("Error");
+            }
+            return View(data);
+            //return _context.FineDetails != null ? 
+            //            View(await _context.FineDetails
+            //            .Include(d => d.Reservation.ReservedUser)
+            //            .Include(d => d.Reservation.Book)
+            //            .ToListAsync()) :
+            //            Problem("Entity set 'LibraryManagementSystemContext.FineDetails'  is null.");
         }
 
         // GET: Fine/Details/5
@@ -93,32 +113,22 @@ namespace LibraryManagementSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("FineId,FineAmount,Paid")] FineDetails fineDetails)
         {
-            if (id != fineDetails.FineId)
+            try
             {
-                return NotFound();
+                string apiUrl = $"http://localhost:5142/api/FineDetails/{id}?paid={fineDetails.Paid}";
+                var content = new StringContent("Request body goes here");
+                // send the API request and get the response
+                HttpClient client = new HttpClient();
+                HttpResponseMessage response = await client.PutAsync(apiUrl, content);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(responseBody);
             }
-
-            if (ModelState.IsValid)
+            catch (Exception ex)
             {
-                try
-                {
-                    _context.Update(fineDetails);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FineDetailsExists(fineDetails.FineId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return View("Error");
             }
-            return View(fineDetails);
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Fine/Delete/5
@@ -153,14 +163,14 @@ namespace LibraryManagementSystem.Controllers
             {
                 _context.FineDetails.Remove(fineDetails);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool FineDetailsExists(int id)
         {
-          return (_context.FineDetails?.Any(e => e.FineId == id)).GetValueOrDefault();
+            return (_context.FineDetails?.Any(e => e.FineId == id)).GetValueOrDefault();
         }
     }
 }

@@ -31,6 +31,7 @@ namespace LibraryManagementApi.Controllers
           }
             return await _context.FineDetails
                 .Include(d => d.Reservation.ReservedUser)
+                .Include(d => d.Reservation.Book)
                 .Include(d => d.Reservation)
                 .ToListAsync();
         }
@@ -61,7 +62,7 @@ namespace LibraryManagementApi.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutFineDetails(int id, bool paid)
         {
-            var fineDetails = new FineDetails();
+            var fineDetails = await _context.FineDetails.Where(d => d.FineId == id).FirstOrDefaultAsync();
             fineDetails.FineId = id;
             fineDetails.Paid = paid;
             _context.Entry(fineDetails).State = EntityState.Modified;
