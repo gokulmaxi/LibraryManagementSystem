@@ -19,7 +19,7 @@
             <div class="form-group">
                 @*TODO add date validation *@
                 <label asp-for="ReturnDate" class="control-label"></label>
-                <input asp-for="ReturnDate" class="form-control" />
+                <input asp-for="ReturnDate" id="returnDate" type="text" class="" />
                 <span asp-validation-for="ReturnDate" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -37,17 +37,19 @@
     <script>
         $(function () {
             $("#returnDate").datepicker({
-                maxDate: 15
+                dateFormat: "yy-mm-dd",
+                onSelect: function () {
+                    var dateObject = $(this).datepicker('getDate');
+                    console.log(dateObject)
+                }
             });
             $("#datepicker").datepicker({
                 minDate: 0,
+                dateFormat: "yy-mm-dd",
                 onSelect: function () {
                     var dateObject = $(this).datepicker('getDate');
                     dateObject.setDate(dateObject.getDate() + 15)
                     console.log(dateObject)
-                    $("#returnDate").datepicker({
-                        maxDate: dateObject
-                    });
                 }
             });
 

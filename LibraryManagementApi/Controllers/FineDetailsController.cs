@@ -30,20 +30,23 @@ namespace LibraryManagementApi.Controllers
               return NotFound();
           }
             return await _context.FineDetails
-                .Include(d => d.User)
+                .Include(d => d.Reservation.ReservedUser)
                 .Include(d => d.Reservation)
                 .ToListAsync();
         }
 
         // GET: api/FineDetails/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<FineDetails>> GetFineDetails(int id)
+        public async Task<ActionResult<FineDetails>> GetFineDetails(string id)
         {
           if (_context.FineDetails == null)
           {
               return NotFound();
           }
-            var fineDetails = await _context.FineDetails.FindAsync(id);
+            var fineDetails = await _context.FineDetails
+                .Include(d => d.Reservation)
+                .Where(d=> d.Reservation.ReservedUser.Id == id)
+                .FirstOrDefaultAsync();
 
             if (fineDetails == null)
             {
@@ -56,13 +59,11 @@ namespace LibraryManagementApi.Controllers
         // PUT: api/FineDetails/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutFineDetails(int id, FineDetails fineDetails)
+        public async Task<IActionResult> PutFineDetails(int id, bool paid)
         {
-            if (id != fineDetails.FineId)
-            {
-                return BadRequest();
-            }
-
+            var fineDetails = new FineDetails();
+            fineDetails.FineId = id;
+            fineDetails.Paid = paid;
             _context.Entry(fineDetails).State = EntityState.Modified;
 
             try

@@ -14,9 +14,13 @@ namespace LibraryManagementSystem.Models
     {
         [Key]
         public int ReservationId { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime ReservedDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? IssuedDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime ReturnDate { get; set; }
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime? ReturnedDate { get; set; }
         public LMSUser ReservedUser { get; set; }
         public BookDetails Book { get; set; }

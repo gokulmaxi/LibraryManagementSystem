@@ -71,7 +71,10 @@ namespace LibraryManagementSystem.Controllers
                 var BookData = await _context.BookDetails.Where(x => x.BookId == tempId).FirstOrDefaultAsync();
                 reservationDetails.ReservedUser = await _userManager.GetUserAsync(User);
                 reservationDetails.Book = BookData;
-                Console.WriteLine("\n \n" + reservationDetails.ReservedDate.ToString() + " return" + reservationDetails.ReturnDate.ToString());
+                reservationDetails.ReservedDate =Convert.ToDateTime( reservationDetails.ReservedDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                reservationDetails.ReturnDate = Convert.ToDateTime(reservationDetails.ReturnDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                if (reservationDetails.ReturnDate == null) Console.WriteLine(" \n Nulll \n");
+                Console.WriteLine("\n \n" + reservationDetails.ReservedDate.ToString("dd-MM-yyyy") + " return" + reservationDetails.ReturnDate.ToString("dd-MM-yyyy"));
                 _context.Add(reservationDetails);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
