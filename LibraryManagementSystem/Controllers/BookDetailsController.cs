@@ -73,7 +73,11 @@ namespace LibraryManagementSystem.Controllers
             {
                 return NotFound();
             }
-
+            var reservationDetails = await _context.ReservationDetails
+                .Include(d => d.Book)
+                .Include(d => d.ReservedUser)
+                .Where(d => d.Book.BookId == id).ToListAsync();
+            ViewBag.ReservationDetails = reservationDetails;
             var bookDetails = await _context.BookDetails
                 .FirstOrDefaultAsync(m => m.BookId == id);
             if (bookDetails == null)

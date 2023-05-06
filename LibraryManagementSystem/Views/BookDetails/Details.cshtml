@@ -3,58 +3,63 @@
 @{
     ViewData["Title"] = "Details";
 }
+<div class="row ">
+    <div class="col-1 align-content-center">
+        <a class="btn" asp-action="Index">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left-circle-fill" viewBox="0 0 16 16">
+                <path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 7.5a.5.5 0 0 1 0 1H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5z"></path>
+            </svg>
+        </a>
+    </div>
 
-<h1>Details</h1>
-
-<div>
-    <h4>BookDetails</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BookTitle)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BookTitle)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Category)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Category)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Publication)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Publication)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BookEdition)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BookEdition)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RackNo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RackNo)
-        </dd>
-    </dl>
+    <h1 class="col-9 text-center">Book Status</h1>
+    <div class="col-2 justify-content-end">
+        <a class="btn btn-outline-secondary" asp-controller="Reservation" asp-action="Create" asp-route-id="@Model?.BookId">Reserve date</a> 
+    </div>
 </div>
-<div>
+
+<hr />
+<div class="row justify-content-between" style="height:300px">
+    <div class=" col-md-4">
+        @{
+            string src = "https://covers.openlibrary.org/b/id/" + Model.CoverId.ToString() + "-M.jpg";
+        }
+        <div class="card-img-top book-cover-2 " style="background-image: url(@src)"></div>
+        <div class="card-body">
+            <h5 class="card-title book-title">@Model.BookTitle</h5>
+            <p class="card-text book-author">@Model.Author</p>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <table class="table table-striped">
+
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Status</th>
+                    <th>Available on</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+                @foreach (ReservationDetails item in ViewBag.ReservationDetails)
+                {
+
+                    <tr>
+                        <th>@item.ReservedUser.UserName</th>
+                        <th>@item.ReservationStatus</th>
+                        <th>@item.ReturnDate</th>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@*    <div>
     <a asp-controller="Reservation" asp-action="Create" asp-route-id="@Model?.BookId">Reserve date</a> |
     <a asp-action="Index">Back to List</a>
-</div>
+    </div>
+    </div>
+    *@
