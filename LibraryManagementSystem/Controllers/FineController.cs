@@ -98,7 +98,11 @@ namespace LibraryManagementSystem.Controllers
                 return NotFound();
             }
 
-            var fineDetails = await _context.FineDetails.FindAsync(id);
+            var fineDetails = await _context.FineDetails
+                .Include(d => d.Reservation.Book)
+                .Include(d=>d.Reservation.ReservedUser)
+                .Where(d => d.FineId == id)
+                .FirstOrDefaultAsync();
             if (fineDetails == null)
             {
                 return NotFound();
