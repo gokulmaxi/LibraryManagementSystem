@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class ReservationController : Controller
     {
         private readonly LibraryManagementSystemContext _context;

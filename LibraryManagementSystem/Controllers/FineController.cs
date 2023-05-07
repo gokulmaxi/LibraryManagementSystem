@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class FineController : Controller
     {
         private readonly LibraryManagementSystemContext _context;

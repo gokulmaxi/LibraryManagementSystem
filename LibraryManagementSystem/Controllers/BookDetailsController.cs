@@ -13,9 +13,11 @@ using System.Text.Json;
 using Newtonsoft.Json;
 using System.Text.Json.Nodes;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LibraryManagementSystem.Controllers
 {
+    [Authorize]
     public class BookDetailsController : Controller
     {
         private readonly LibraryManagementSystemContext _context;
