@@ -3,11 +3,28 @@
 @{
     ViewData["Title"] = "Create";
 }
-<h1>Create</h1>
-
-<h4>ReservationDetails</h4>
-<hr />
 <div class="row">
+    <div class="col-2">
+        <a class="btn btn-outline-secondary" asp-controller="BookDetails" asp-action="Index">Back to List</a>
+    </div>
+    <div class="col-6">
+        <h4 style="text-align:center">Add Reservation</h4>
+
+    </div>
+</div>
+<hr />
+<div class="row justify-content-between">
+
+    <div class="col-md-4 ">
+        @{
+            string src = "https://covers.openlibrary.org/b/id/" + @ViewBag.BookData.CoverId.ToString() + "-M.jpg";
+        }
+        <div class="card-img-top book-cover-2" style="background-image: url(@src)"></div>
+        <div class="card-body">
+            <h5 class="card-title book-title">@ViewBag.BookData.BookTitle</h5>
+            <p class="card-text book-author">@ViewBag.BookData.Author</p>
+        </div>
+    </div>
     <div class="col-md-4">
         <form asp-action="Create">
             @*<div asp-validation-summary="ModelOnly" class="text-danger"></div>*@
@@ -19,19 +36,27 @@
             <div class="form-group">
                 @*TODO add date validation *@
                 <label asp-for="ReturnDate" class="control-label"></label>
-                <input asp-for="ReturnDate" id="returnDate" type="text" class="" />
+                <input asp-for="ReturnDate" id="returnDate" class="form-control" type="text" class="" />
                 <span asp-validation-for="ReturnDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+            <br />
+            <p>
+                Note:
+                <br />
+                <ul>
+                    <li>You must return the book within the returned date</li>
+                    <li>Fine of RS.5 will be added for each day</li>
+                    <li>Librarian may reject your reservation request if required</li>
+
+                </ul>
+            </p>
+            <div class="row form-group justify-content-center">
+                <input type="submit" value="Create" class="btn btn-secondary col-4 " />
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
 @section Scripts
     {
     <script>

@@ -54,9 +54,11 @@ namespace LibraryManagementSystem.Controllers
         }
 
         // GET: Reservation/Create
-        public IActionResult Create(int id)
+        public async Task<IActionResult> Create(int id)
         {
             TempData["BookId"] = id;
+            var BookData = await _context.BookDetails.Where(x => x.BookId == id).FirstOrDefaultAsync();
+            ViewBag.BookData = BookData;
             return View();
         }
 
@@ -73,7 +75,7 @@ namespace LibraryManagementSystem.Controllers
                 var BookData = await _context.BookDetails.Where(x => x.BookId == tempId).FirstOrDefaultAsync();
                 reservationDetails.ReservedUser = await _userManager.GetUserAsync(User);
                 reservationDetails.Book = BookData;
-                reservationDetails.ReservedDate =Convert.ToDateTime( reservationDetails.ReservedDate.ToString("yyyy-MM-dd HH:mm:ss"));
+                reservationDetails.ReservedDate = Convert.ToDateTime(reservationDetails.ReservedDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 reservationDetails.ReturnDate = Convert.ToDateTime(reservationDetails.ReturnDate.ToString("yyyy-MM-dd HH:mm:ss"));
                 if (reservationDetails.ReturnDate == null) Console.WriteLine(" \n Nulll \n");
                 Console.WriteLine("\n \n" + reservationDetails.ReservedDate.ToString("dd-MM-yyyy") + " return" + reservationDetails.ReturnDate.ToString("dd-MM-yyyy"));
