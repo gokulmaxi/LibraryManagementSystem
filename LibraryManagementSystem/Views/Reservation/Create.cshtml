@@ -46,7 +46,7 @@
                 <ul>
                     <li>You must return the book within the returned date</li>
                     <li>Fine of RS.5 will be added for each day</li>
-                    <li>Librarian may reject your reservation request if required</li>
+                    <li>Librarian may reject your reservation request on failing to collect the book on reserved data if required </li>
 
                 </ul>
             </p>
@@ -61,13 +61,13 @@
     {
     <script>
         $(function () {
-            $("#returnDate").datepicker({
-                dateFormat: "yy-mm-dd",
-                onSelect: function () {
-                    var dateObject = $(this).datepicker('getDate');
-                    console.log(dateObject)
-                }
-            });
+            //$("#returnDate").datepicker({
+            //    dateFormat: "yy-mm-dd",
+            //    onSelect: function () {
+            //        var dateObject = $(this).datepicker('getDate');
+            //        console.log(dateObject)
+            //    }
+            //});
             $("#datepicker").datepicker({
                 minDate: 0,
                 dateFormat: "yy-mm-dd",
@@ -75,6 +75,10 @@
                     var dateObject = $(this).datepicker('getDate');
                     dateObject.setDate(dateObject.getDate() + 15)
                     console.log(dateObject)
+                    $("#returnDate").datepicker({
+                        dateFormat: "yy-mm-dd",
+                        maxDate: dateObject
+                    });
                 }
             });
 
