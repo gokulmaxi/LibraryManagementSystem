@@ -31,6 +31,7 @@ namespace LibraryManagementSystem.Controllers
                         View(await _context.ReservationDetails
                         .Include(d => d.Book)
                         .Include(d => d.ReservedUser)
+                        .OrderBy(d => d.ReservationStatus)
                         .ToListAsync()) :
                         Problem("Entity set 'LibraryManagementSystemContext.ReservationDetails'  is null.");
         }
