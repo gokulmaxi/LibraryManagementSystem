@@ -9,6 +9,7 @@ using LibraryManagementSystem.Areas.Identity.Data;
 using LibraryManagementSystem.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace LibraryManagementSystem.Controllers
 {
@@ -16,10 +17,12 @@ namespace LibraryManagementSystem.Controllers
     public class FineController : Controller
     {
         private readonly LibraryManagementSystemContext _context;
+        private readonly UserManager<LMSUser> _userManager;
 
-        public FineController(LibraryManagementSystemContext context)
+        public FineController(LibraryManagementSystemContext context,UserManager<LMSUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Fine
@@ -29,7 +32,7 @@ namespace LibraryManagementSystem.Controllers
             try
             {
                 string apiUrl = $"http://localhost:5142/api/FineDetails";
-
+                
                 // send the API request and get the response
                 HttpClient client = new HttpClient();
                 HttpResponseMessage response = await client.GetAsync(apiUrl);
